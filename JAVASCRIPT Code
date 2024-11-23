@@ -1,0 +1,137 @@
+const question = [
+  {
+      question: "What does HTML stand for?",
+      answer: [
+          { text: "Hyerlinks and Text Markup Language", correct: false },
+          { text: "Hyper Text Markup Language", correct: true },
+          { text: "Home Tool Markup Language", correct: false },
+          { text: "Hyperlinks Text Modern Language", correct: false },
+      ]
+  },
+  {
+      question: "Which attribute is used to specify an image in an <img> tag?",
+      answer: [
+          { text: "href", correct: false },
+          { text: "link", correct: false },
+          { text: "src", correct: true },
+          { text: "alt", correct: false },
+      ]
+  },
+  {
+       question: "How do you select an element with the ID header in CSS?",
+       answer: [
+          { text: "header", correct: false },
+          { text: ".header", correct: false },
+          { text: "#header", correct: true },
+          { text: "*header", correct: false },
+    ]
+  },
+  {
+      question: "Which property is used to change the background color of an element?",
+      answer: [
+          { text: "Color", correct: false },
+          { text: "Background-color", correct: true },
+          { text: "Bgcolor", correct: false },
+          { text: "Background", correct: false },
+      ]
+  },
+  {
+      question: "Which value is NOT a valid position values in CSS?",
+      answer: [
+          { text: "Static", correct: false },
+          { text: "Fixed", correct: false },
+          { text: "Center", correct: true },
+          { text: "Absolute", correct: false },
+      ]
+  }
+];
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz() {
+  currentQuestionIndex = 0;
+  score = 0;
+  nextButton.innerHTML = "Next";
+  nextButton.style.display = "none"; // Hide next button initially
+  showQuestion();
+}
+
+function showQuestion() {
+  resetState(); // Clear previous answer buttons before adding new ones
+  let currentQuestion = question[currentQuestionIndex];
+  let questionNO = currentQuestionIndex + 1;
+  questionElement.innerHTML = questionNO + " . " + currentQuestion.question;
+
+  currentQuestion.answer.forEach(answer => {
+      const button = document.createElement("button");
+      button.innerHTML = answer.text;
+      button.classList.add("btn");
+      answerButtons.appendChild(button);
+      if (answer.correct) {
+          button.dataset.correct = answer.correct;
+      }
+      button.addEventListener("click", selectAnswer); // Corrected "Click" to "click"
+  });
+}
+
+function resetState() {
+  nextButton.style.display = "none"; // Hide next button before resetting buttons
+  while (answerButtons.firstChild) {
+      answerButtons.removeChild(answerButtons.firstChild); // Remove all old answer buttons
+  }
+}
+
+function selectAnswer(e) {
+  const selectedBtn = e.target;
+  const isCorrect = selectedBtn.dataset.correct === "true";
+  
+  if (isCorrect) {
+      selectedBtn.classList.add("correct");  // Add "correct" class for correct answer
+      score++;
+  } else {
+      selectedBtn.classList.add("incorrect");  // Add "incorrect" class for wrong answer
+  }
+
+  // Show the correct answer in green
+  Array.from(answerButtons.children).forEach(button => {
+      if (button.dataset.correct === "true") {
+          button.classList.add("correct");
+      } else {
+          button.classList.add("incorrect");
+      }
+      button.disabled = true; // Disable all answer buttons after an answer is selected
+  });
+
+  nextButton.style.display = "block"; // Show next button after selection
+}
+
+function showScore() {
+  resetState();
+  questionElement.innerHTML = `You scored ${score} out of ${question.length}!`; // Fixed template literal
+  nextButton.innerHTML = "Play Again";
+  nextButton.style.display = "block";
+}
+
+function handleNextButton() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < question.length) {
+      showQuestion();
+  } else {
+      showScore();
+  }
+}
+
+nextButton.addEventListener("click", () => {
+  if (currentQuestionIndex < question.length) {
+      handleNextButton();
+  } else {
+      startQuiz();
+  }
+});
+
+startQuiz();
